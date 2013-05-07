@@ -1,13 +1,14 @@
 #include <SPI.h>         // needed for Arduino versions later than 0018
 #include <Ethernet.h>
 #include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
+#include <LiquidCrystal.h>
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 0, 42);
-IPAddress gateway(192,168,0,1);	
+IPAddress gateway(192,168,0,1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress destination(192, 168, 0, 72);
 unsigned int localPort = 8888;      // local port to listen on
@@ -15,6 +16,16 @@ unsigned int destPort = 8888;
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
+/*
+ initialize the library with the numbers of the interface pins
+ * LCD RS pin to digital pin 7
+ * LCD Enable pin to digital pin 6
+ * LCD D4 pin to digital pin 5
+ * LCD D5 pin to digital pin 4
+ * LCD D6 pin to digital pin 3
+ * LCD D7 pin to digital pin 2
+*/
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
 int relais_Pin = 9;      // select the pin for the LED
 int sol_volt_Pin = A5;      // select the pin for the LED
@@ -47,10 +58,13 @@ void setup() {
   Ethernet.begin(mac,ip);
   Udp.begin(localPort);
   Serial.begin(9600);
-  //inputoutput config 
-  pinMode(relais_Pin, OUTPUT);  
-  Serial.println(" MOOGAA SOOOLAA V0.1 ");
-  Serial.println(" says hello im alive! ");  
+  //inputoutput config
+  pinMode(relais_Pin, OUTPUT);
+
+  lcd.begin(16, 2);      // set up the LCD's number of columns and rows:
+  lcd.print("MOOGAA SOOLAA   V0.2");// Print a message to the LCD.
+  Serial.println(" MOOGAA SOOOLAA V0.2 ");
+  Serial.println(" says hello im alive! ");
 }
 
 void read_analog (){
@@ -75,11 +89,11 @@ void calc_volt(){
   solar_Voltage = pinVoltage * sol_ratio;    //  Use the ratio calculated for the voltage divider
   /*  A reading of 1 for the A/D = 0.0048mV
    if we multiply the A/D reading by 0.00488 then
-   we get the voltage on the pin. 
-   
+   we get the voltage on the pin.
+
    NOTE! .00488 is ideal. I had to adjust
    to .00610 to match fluke meter.
-   
+
    Also, depending on wiring and
    where voltage is being read, under
    heavy loads voltage displayed can be
@@ -117,8 +131,8 @@ void send_udp(){
   Udp.write(";");
   Udp.write("battery volt");
   Udp.write(";");
-  Udp.print(battery_Voltage);  
-  Udp.write(";");  
+  Udp.print(battery_Voltage);
+  Udp.write(";");
   Udp.write("relais");
   Udp.write(";");
   if (relais_state){
@@ -134,7 +148,7 @@ void loop() {
     read_analog();
     calc_volt();
 //    relais(solar_Voltage);      //relais mit solar voltage aufrufen
-    
+
   // check for a reading no more than once a second.
   if (millis() - lastReadingTime > 1000){
     send_udp();
@@ -146,10 +160,10 @@ void loop() {
   //alle 15 min = 1000*60*15 in den testmode
   if ((millis() - lastTestTime > 1000*15) &&! test_mode ){
     test_mode = true;
-    
+
     lastTestStart = millis();
-    lastTestTime = millis();    
-    Serial.println("test START"); 
+    lastTestTime = millis();
+    Serial.println("test START");
   }
   //10 second later schau ob saft am panel
   if (millis() - lastTestStart > 1000 && test_mode){
@@ -158,17 +172,17 @@ void loop() {
     {
       test_mode = false;
       lastTestTime = millis();
-      Serial.println("test OK");      
+      Serial.println("test OK");
     }
     else {
-      lastTestStart = millis() ;    
-      Serial.println("test NOK");      
+      lastTestStart = millis() ;
+      Serial.println("test NOK");
     }
 
   }
 
   relais_state = test_mode;
-  digitalWrite(relais_Pin, relais_state); 
+  digitalWrite(relais_Pin, relais_state);
 
 }
 

@@ -1,6 +1,11 @@
+import time
+import datetime
+
 __author__ = 'hpl'
 
 import socket
+import sqlite3
+from time import gmtime, strftime
 
 # UDP_IP = "192.168.0.42"
 # UDP_PORT = 8888
@@ -16,13 +21,25 @@ import socket
 
 ip = '192.168.0.72'
 port = 8888
+filename = 'solar.csv'
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sock.bind((ip,port))
 
-while True:
-    data, addr = sock.recvfrom(1024)
-    #print 'received: ', data, addr
-    print data.split(';')
-    datalist = data.split(';')
+import csv
+with open(filename , 'ab') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=';',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    while True:
+        data, addr = sock.recvfrom(1024)
+        #print 'received: ', data, addr
+        now = datetime.datetime.now()
+        datalist = data.split(';')
+        l = []
+        l.append(now)
+        l.extend(datalist)
+        print now, datalist
+        spamwriter.writerow(l)
+
+
 
