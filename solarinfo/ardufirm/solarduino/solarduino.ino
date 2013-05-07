@@ -230,23 +230,23 @@ void loop() {
           client.println("</b>");
           client.println("<br />");
           client.println("<br />");
-          client.print("Solar Spannung: ");
+          client.print("Solar Spannung.....................");
           client.print(solar_Voltage);
           client.println("<br />");
 
-          client.print("Batterie Spannung: ");
+          client.print("Batterie Spannung.................");
           client.print(battery_Voltage);
           client.println("<br />");
 
-          client.print("Solar Leerlauf Spannung: ");
+          client.print("Solar Leerlauf Spannung.......");
           client.print(solar_leerlauf_Volt);
           client.println("<br />");
 
-          client.print("Batterie Leerlauf Spannung: ");
+          client.print("Batterie Leerlauf Spannung...");
           client.print(battery_leerlauf_Volt);
           client.println("<br />");
 
-          client.print("Batterie wird : ");
+          client.print("Batterie wird......................");
           if (test_mode){
             client.print("entladen");
           }
