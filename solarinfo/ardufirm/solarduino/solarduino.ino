@@ -8,7 +8,7 @@
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 0, 42);
-IPAddress gateway(192,168,0,1);	
+IPAddress gateway(192,168,0,1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress destination(192, 168, 0, 72);
 unsigned int localPort = 8888;      // local port to listen on
@@ -55,7 +55,7 @@ boolean relais_state = false;
 boolean test_mode = true;
 
 // Initialize the Ethernet server library
-// with the IP address and port you want to use 
+// with the IP address and port you want to use
 // (port 80 is default for HTTP):
 EthernetServer server(80);
 
@@ -65,18 +65,18 @@ void setup() {
   Ethernet.begin(mac,ip);
   Udp.begin(localPort);
   Serial.begin(57600);
-  //inputoutput config 
-  pinMode(relais_Pin, OUTPUT);  
+  //inputoutput config
+  pinMode(relais_Pin, OUTPUT);
 
   // start the Ethernet connection and the server:
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
 
-  lcd.begin(16, 2);      // set up the LCD's number of columns and rows: 
+  lcd.begin(16, 2);      // set up the LCD's number of columns and rows:
   lcd.print("MOOGAA SOOLAA   V0.2");// Print a message to the LCD.
   Serial.println(" MOOGAA SOOOLAA V0.2 ");
-  Serial.println(" says hello im alive! ");  
+  Serial.println(" says hello im alive! ");
 }
 
 void read_analog (){
@@ -101,11 +101,11 @@ void calc_volt(){
   solar_Voltage = pinVoltage * sol_ratio;    //  Use the ratio calculated for the voltage divider
   /*  A reading of 1 for the A/D = 0.0048mV
    if we multiply the A/D reading by 0.00488 then
-   we get the voltage on the pin. 
-   
+   we get the voltage on the pin.
+
    NOTE! .00488 is ideal. I had to adjust
    to .00610 to match fluke meter.
-   
+
    Also, depending on wiring and
    where voltage is being read, under
    heavy loads voltage displayed can be
@@ -143,8 +143,8 @@ void send_udp(){
   Udp.write(";");
   Udp.write("battery volt");
   Udp.write(";");
-  Udp.print(battery_Voltage);  
-  Udp.write(";");  
+  Udp.print(battery_Voltage);
+  Udp.write(";");
   Udp.write("relais");
   Udp.write(";");
   if (relais_state){
@@ -174,8 +174,8 @@ void loop() {
     test_mode = true;
 
     lastTestStart = millis();
-    lastTestTime = millis();    
-    Serial.println("test START"); 
+    lastTestTime = millis();
+    Serial.println("test START");
   }
   //10 second later schau ob saft am panel
   if (millis() - lastTestStart > 1000 && test_mode){
@@ -186,17 +186,17 @@ void loop() {
     {
       test_mode = false;
       lastTestTime = millis();
-      Serial.println("test OK");      
+      Serial.println("test OK");
     }
     else {
-      lastTestStart = millis() ;    
-      Serial.println("test NOK");      
+      lastTestStart = millis() ;
+      Serial.println("test NOK");
     }
 
   }
 
   relais_state = test_mode;
-  digitalWrite(relais_Pin, relais_state); 
+  digitalWrite(relais_Pin, relais_state);
 
   ///  WEBSERVA ///////
 
@@ -225,13 +225,18 @@ void loop() {
           client.println("<meta http-equiv=\"refresh\" content=\"5\">");
           // output the value of each analog input pin
 
-            client.print("Solar Spannung: ");
+          client.println("<b>");
+            client.print(" MOOGAA SOOOLAA V0.2    -   Status");
+          client.println("</b>");
+          client.println("<br />");
+          client.println("<br />");
+          client.print("Solar Spannung: ");
           client.print(solar_Voltage);
-          client.println("<br />");       
+          client.println("<br />");
 
           client.print("Batterie Spannung: ");
           client.print(battery_Voltage);
-          client.println("<br />");       
+          client.println("<br />");
 
           client.print("Batterie Leerlauf Spannung: ");
           client.print(battery_leerlauf_Volt);
@@ -249,6 +254,9 @@ void loop() {
             client.print("geladen");
           }
           client.println("<br />");
+          client.println("<br />");
+          client.println("<br />");
+          client.print("Hacked together by hpl");
 
           client.println("</html>");
           break;
@@ -256,7 +264,7 @@ void loop() {
         if (c == '\n') {
           // you're starting a new line
           currentLineIsBlank = true;
-        } 
+        }
         else if (c != '\r') {
           // you've gotten a character on the current line
           currentLineIsBlank = false;
@@ -273,6 +281,8 @@ void loop() {
 
 
 }
+
+
 
 
 
