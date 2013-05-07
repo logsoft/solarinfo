@@ -169,8 +169,8 @@ void loop() {
   }
 
 
-  //alle 15 min = 1000*60*15 in den testmode
-  if ((millis() - lastTestTime > 1000*15) &&! test_mode ){
+  //alle 10 min = 1000*60*10 in den testmode
+  if ((millis() - lastTestTime > 1000L*60L*10L) &&! test_mode ){
     test_mode = true;
 
     lastTestStart = millis();
@@ -203,13 +203,13 @@ void loop() {
   // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
-    Serial.println("new client");
+    //Serial.println("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        Serial.write(c);
+        //Serial.write(c);
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
@@ -238,12 +238,12 @@ void loop() {
           client.print(battery_Voltage);
           client.println("<br />");
 
-          client.print("Batterie Leerlauf Spannung: ");
-          client.print(battery_leerlauf_Volt);
-          client.println("<br />");
-
           client.print("Solar Leerlauf Spannung: ");
           client.print(solar_leerlauf_Volt);
+          client.println("<br />");
+
+          client.print("Batterie Leerlauf Spannung: ");
+          client.print(battery_leerlauf_Volt);
           client.println("<br />");
 
           client.print("Batterie wird : ");
@@ -275,7 +275,7 @@ void loop() {
     delay(1);
     // close the connection:
     client.stop();
-    Serial.println("client disonnected");
+    //Serial.println("client disonnected");
   }
 
 
