@@ -7,7 +7,7 @@
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 0, 42);
-IPAddress gateway(192,168,0,1);	
+IPAddress gateway(192,168,0,1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress destination(192, 168, 0, 72);
 unsigned int localPort = 8888;      // local port to listen on
@@ -27,12 +27,12 @@ int batt_volt_Pin = A4;
 int sol_sampleVolt = 0;
 int batt_sampleVolt = 0;
 
-int batt_R1 = 11900; // Resistance of R1 in ohms
-int batt_R2 = 5000; // Resistance of R2 in ohms
+int batt_R1 = 11980; // Resistance of R1 in ohms
+int batt_R2 = 5195; // Resistance of R2 in ohms
 float batt_ratio = (float)batt_R1 / (float)batt_R2;
 
-int sol_R1 = 12200; // Resistance of R1 in ohms
-int sol_R2 = 2000; // Resistance of R2 in ohms
+int sol_R1 = 11980; // Resistance of R1 in ohms
+int sol_R2 = 1875; // Resistance of R2 in ohms
 float sol_ratio = (float)sol_R1 / (float)sol_R2;
 
 float battery_Voltage = 0.0;
@@ -45,8 +45,8 @@ void setup() {
 
   Serial.begin(9600);
 
-  //inputoutput config 
-  pinMode(relais_Pin, OUTPUT);  
+  //inputoutput config
+  pinMode(relais_Pin, OUTPUT);
 
 }
 
@@ -60,7 +60,7 @@ void send_udp(){
   Udp.write(";");
   Udp.write("battery volt");
   Udp.write(";");
-  Udp.print(battery_Voltage);  
+  Udp.print(battery_Voltage);
   Udp.endPacket();
 }
 
@@ -69,7 +69,7 @@ void relais(float volt){
     digitalWrite(relais_Pin, LOW);
     Serial.println("Relais OFF");
   }
-  else{
+  else if (volt <= 13.5){
     digitalWrite(relais_Pin, HIGH);
     Serial.println("Relais ON");
   }
@@ -83,20 +83,20 @@ void read_analog (){
     // read the analog in value:
     sol_sampleVolt = sol_sampleVolt + analogRead(sol_volt_Pin); // add samples together
     batt_sampleVolt = batt_sampleVolt + analogRead(batt_volt_Pin); // add samples together
-    delay (10); // let ADC settle before next sample
+    delay (50); // let ADC settle before next sample
   }
 }
 
 void calc_battery_volt(){
-  int avgval = batt_sampleVolt / 10; //divide by 10 (number of samples) to get a steady reading
-  float pinVoltage = avgval * 0.00500;       //  Calculate the voltage on the A/D pin
+  float avgval = batt_sampleVolt / 10; //divide by 10 (number of samples) to get a steady reading
+  float pinVoltage = avgval * 0.00685;       //  Calculate the voltage on the A/D pin
   /*  A reading of 1 for the A/D = 0.0048mV
    if we multiply the A/D reading by 0.00488 then
-   we get the voltage on the pin. 
-   
+   we get the voltage on the pin.
+
    NOTE! .00488 is ideal. I had to adjust
    to .00610 to match fluke meter.
-   
+
    Also, depending on wiring and
    where voltage is being read, under
    heavy loads voltage displayed can be
@@ -110,15 +110,15 @@ void calc_battery_volt(){
 }
 
 void calc_solar_volt(){
-  int avgval = sol_sampleVolt / 10; //divide by 10 (number of samples) to get a steady reading
-  float pinVoltage = avgval * 0.00500;       //  Calculate the voltage on the A/D pin
+  float avgval = sol_sampleVolt / 10; //divide by 10 (number of samples) to get a steady reading
+  float pinVoltage = avgval * 0.00525;       //  Calculate the voltage on the A/D pin
   /*  A reading of 1 for the A/D = 0.0048mV
    if we multiply the A/D reading by 0.00488 then
-   we get the voltage on the pin. 
-   
+   we get the voltage on the pin.
+
    NOTE! .00488 is ideal. I had to adjust
    to .00610 to match fluke meter.
-   
+
    Also, depending on wiring and
    where voltage is being read, under
    heavy loads voltage displayed can be
@@ -127,7 +127,7 @@ void calc_solar_volt(){
    */
 
   //float ratio = (float)R1 / (float)R2;
-  
+
   solar_Voltage = pinVoltage * sol_ratio;    //  Use the ratio calculated for the voltage divider
   //  to calculate the battery voltage
 }
@@ -141,7 +141,9 @@ void loop() {
     calc_battery_volt();
     calc_solar_volt();
     send_udp();
+    //relais mit solar voltage aufrufen
     relais(solar_Voltage);
+
     Serial.print("Solar Volt: ");
     Serial.print(solar_Voltage);
     Serial.print(" Battery Volt: ");
@@ -155,7 +157,6 @@ void loop() {
     lastReadingTime = millis();
   }
 }
-
 
 
 
